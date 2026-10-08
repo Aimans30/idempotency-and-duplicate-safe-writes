@@ -139,3 +139,20 @@ Submit pull-request URL, not repository homepage, branch, commit, or PDF link.
 **Tests say idempotency table is missing:** implement schema TODOs and rerun reset before tests.
 
 **Resetting production data:** never point `DATABASE_URL` at shared or production database. Reset script is destructive.
+## Idempotency Design
+
+`POST /incidents` requires an `Idempotency-Key` for every logical
+incident creation request.
+
+### Key scope
+
+The idempotency key is scoped by:
+
+- authenticated tenant
+- operation (`POST:/incidents`)
+- client-provided idempotency key
+
+The database enforces uniqueness on:
+
+```text
+(tenant_id, operation, key)
